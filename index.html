@@ -1,0 +1,1202 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>陈晓七夕心动 Soda Pop</title>
+
+<style>
+*{box-sizing:border-box}
+
+:root{
+  --ink:#20384c;
+  --muted:#6c8497;
+  --line:#dceaf2;
+  --glass:rgba(255,255,255,.84);
+  --deep:#203f57;
+}
+
+body{
+  margin:0;
+  min-height:100vh;
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+  color:var(--ink);
+  background:
+    radial-gradient(circle at 10% 0%, rgba(198,240,255,.78), transparent 30%),
+    radial-gradient(circle at 95% 18%, rgba(255,220,235,.75), transparent 30%),
+    linear-gradient(180deg,#f6fcff 0%,#fff8fb 58%,#fffdf8 100%);
+}
+
+.app{
+  max-width:760px;
+  margin:0 auto;
+  padding:24px 16px 44px;
+}
+
+.tag{
+  display:inline-block;
+  padding:7px 11px;
+  border-radius:999px;
+  background:rgba(255,255,255,.84);
+  box-shadow:0 8px 22px rgba(46,112,150,.10);
+  color:#477f9f;
+  font-size:13px;
+  font-weight:800;
+}
+
+h1{
+  margin:14px 0 8px;
+  font-size:31px;
+  line-height:1.12;
+  letter-spacing:-.5px;
+}
+
+.intro{
+  margin:0 0 18px;
+  color:var(--muted);
+  font-size:14px;
+  line-height:1.75;
+}
+
+.progress{
+  display:flex;
+  gap:7px;
+  margin:16px 0 14px;
+}
+
+.dot{
+  flex:1;
+  height:5px;
+  border-radius:999px;
+  background:#dbe9f1;
+  overflow:hidden;
+}
+.dot.active{background:#6fa9c7}
+.dot.done{background:#315f7c}
+
+.question{
+  margin:0 0 13px;
+  padding:14px 15px;
+  border-radius:18px;
+  background:var(--glass);
+  box-shadow:0 10px 26px rgba(37,96,132,.08);
+}
+
+.round{
+  font-size:12px;
+  color:#7390a3;
+  font-weight:800;
+  margin-bottom:5px;
+}
+
+.question h2{
+  margin:0;
+  font-size:19px;
+  line-height:1.5;
+}
+
+.question p{
+  margin:6px 0 0;
+  color:#7990a0;
+  font-size:13px;
+  line-height:1.6;
+}
+
+.board{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+
+.card{
+  aspect-ratio:3/4;
+  perspective:1100px;
+  cursor:pointer;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+}
+
+.inner{
+  position:relative;
+  width:100%;
+  height:100%;
+  transition:transform .62s cubic-bezier(.2,.8,.2,1);
+  transform-style:preserve-3d;
+}
+
+.card.flipped .inner{
+  transform:rotateY(180deg);
+}
+
+.face{
+  position:absolute;
+  inset:0;
+  overflow:hidden;
+  border-radius:22px;
+  background:white;
+  backface-visibility:hidden;
+  -webkit-backface-visibility:hidden;
+  box-shadow:0 16px 34px rgba(31,84,118,.16);
+}
+
+.face img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+
+.front::after{
+  content:"TAP TO POP";
+  position:absolute;
+  left:50%;
+  bottom:13px;
+  transform:translateX(-50%);
+  white-space:nowrap;
+  padding:8px 12px;
+  border-radius:999px;
+  background:rgba(255,255,255,.90);
+  color:#3d7d9f;
+  font-size:10px;
+  letter-spacing:1px;
+  font-weight:900;
+  pointer-events:none;
+}
+
+.back{
+  transform:rotateY(180deg);
+}
+
+.back::after{
+  content:"";
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:0;
+  height:34%;
+  background:linear-gradient(transparent,rgba(0,0,0,.58));
+  pointer-events:none;
+}
+
+.pop{
+  position:absolute;
+  top:12px;
+  right:12px;
+  z-index:2;
+  padding:6px 9px;
+  border-radius:999px;
+  background:rgba(255,255,255,.88);
+  color:#447b9b;
+  font-size:11px;
+  font-weight:900;
+}
+
+.card-copy{
+  position:absolute;
+  z-index:3;
+  left:14px;
+  right:14px;
+  bottom:14px;
+  color:white;
+  text-shadow:0 2px 10px rgba(0,0,0,.42);
+}
+
+.card-copy b{
+  display:block;
+  font-size:18px;
+  margin-bottom:4px;
+}
+
+.card-copy span{
+  display:block;
+  font-size:11px;
+  line-height:1.45;
+}
+
+.actions{
+  display:none;
+  margin-top:16px;
+  padding:16px;
+  border-radius:20px;
+  background:rgba(255,255,255,.88);
+  box-shadow:0 12px 28px rgba(35,91,127,.10);
+}
+
+.actions.show{
+  display:block;
+  animation:fadeUp .35s ease-out;
+}
+
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(8px)}
+  to{opacity:1;transform:none}
+}
+
+.actions-title{
+  font-weight:900;
+  font-size:18px;
+  margin-bottom:5px;
+}
+
+.actions-sub{
+  color:#788f9f;
+  font-size:13px;
+  margin-bottom:12px;
+}
+
+.btn-row{
+  display:flex;
+  gap:9px;
+}
+
+button{
+  border:0;
+  border-radius:14px;
+  padding:13px 10px;
+  font-size:14px;
+  font-weight:850;
+  cursor:pointer;
+}
+
+.pick{
+  flex:1;
+  color:white;
+  background:var(--deep);
+}
+
+.result{
+  display:none;
+  margin-top:13px;
+  padding:14px;
+  border-radius:16px;
+  background:linear-gradient(135deg,#edfaff,#fff0f6);
+  color:#496a80;
+  font-size:14px;
+  line-height:1.7;
+}
+
+.result.show{display:block}
+
+.result strong{
+  color:#295b78;
+  font-size:17px;
+}
+
+.next{
+  display:none;
+  width:100%;
+  margin-top:10px;
+  background:white;
+  color:#356783;
+  border:1px solid var(--line);
+}
+
+.next.show{display:block}
+
+.final{
+  display:none;
+  margin-top:18px;
+  padding:20px 17px;
+  border-radius:22px;
+  background:linear-gradient(135deg,#eafbff,#fff0f7);
+  box-shadow:0 12px 30px rgba(35,91,127,.10);
+}
+
+.final.show{display:block}
+
+.final h2{
+  margin:0 0 8px;
+  font-size:23px;
+}
+
+.final p{
+  margin:0;
+  color:#607d91;
+  line-height:1.75;
+  font-size:14px;
+}
+
+.secret-open{
+  width:100%;
+  margin-top:15px;
+  background:linear-gradient(135deg,#2b5772,#6b88a5);
+  color:white;
+}
+
+.secret{
+  display:none;
+  margin-top:18px;
+}
+
+.secret.show{
+  display:block;
+  animation:fadeUp .4s ease-out;
+}
+
+.secret-head{
+  text-align:center;
+  padding:18px 15px;
+  border-radius:20px;
+  background:rgba(255,255,255,.86);
+  box-shadow:0 10px 24px rgba(35,91,127,.08);
+  margin-bottom:14px;
+}
+
+.secret-head .mini{
+  font-size:11px;
+  letter-spacing:1.2px;
+  color:#7b92a4;
+  font-weight:900;
+}
+
+.secret-head h2{
+  margin:7px 0 5px;
+  font-size:22px;
+}
+
+.secret-head p{
+  margin:0;
+  color:#728b9c;
+  font-size:13px;
+  line-height:1.65;
+}
+
+.secret-ending{
+  display:none;
+  margin-top:16px;
+  padding:18px;
+  text-align:center;
+  border-radius:20px;
+  background:linear-gradient(135deg,#fff6f1,#fff1f7);
+  box-shadow:0 10px 24px rgba(35,91,127,.08);
+}
+
+.secret-ending.show{display:block}
+
+.secret-ending .big{
+  font-size:22px;
+  line-height:1.5;
+  font-weight:900;
+  color:#315f7c;
+  margin-bottom:8px;
+}
+
+.secret-ending p{
+  margin:0;
+  color:#667f91;
+  font-size:14px;
+  line-height:1.8;
+}
+
+.restart{
+  width:100%;
+  margin-top:14px;
+  background:var(--deep);
+  color:white;
+}
+
+.bubble{
+  position:fixed;
+  z-index:99;
+  border-radius:50%;
+  border:1px solid rgba(108,194,230,.36);
+  background:rgba(255,255,255,.60);
+  pointer-events:none;
+  animation:floatUp 1.15s ease-out forwards;
+}
+
+@keyframes floatUp{
+  from{transform:translateY(0) scale(.65);opacity:.95}
+  to{transform:translateY(-120px) scale(1.35);opacity:0}
+}
+
+.footer{
+  text-align:center;
+  margin-top:20px;
+  color:#91a7b6;
+  font-size:11px;
+  line-height:1.8;
+}
+
+.credit{
+  color:#66869a;
+  font-weight:700;
+}
+
+.noncommercial{
+  font-size:10px;
+  opacity:.8;
+}
+
+.ending-credit{
+  margin-top:24px;
+  text-align:center;
+  color:#66869a;
+}
+
+.ending-line{
+  width:28px;
+  height:1px;
+  margin:0 auto 12px;
+  background:#b9ccd8;
+}
+
+.ending-maker{
+  font-size:13px;
+  font-weight:800;
+  letter-spacing:.5px;
+}
+
+.ending-account{
+  margin-top:3px;
+  font-size:12px;
+}
+
+.ending-note{
+  margin-top:8px;
+  font-size:10px;
+  color:#9aabb6;
+}
+</style>
+</head>
+
+<body>
+<div class="app">
+
+  <div class="tag">#陈晓七夕心动SodaPop#</div>
+
+  <h1>七夕心动 Soda Pop 🫧</h1>
+
+  <p class="intro">
+    今晚先不讲道理，只讲心动。<br>
+    六轮极限二选一，翻开属于你的七夕限定瞬间。<br>
+    <b>不许都要，也不许端水——如果七夕你们要共度一天，你要怎么选？</b>
+  </p>
+
+  <div class="progress" id="progress"></div>
+
+  <div id="game">
+
+    <div class="question">
+      <div class="round" id="roundText"></div>
+      <h2 id="questionTitle"></h2>
+      <p id="questionHint"></p>
+    </div>
+
+    <div class="board">
+
+      <div class="card" id="cardA">
+        <div class="inner">
+          <div class="face front">
+            <img id="frontA" src="">
+          </div>
+
+          <div class="face back">
+            <img id="backA" src="">
+            <div class="pop">POP!</div>
+            <div class="card-copy">
+              <b id="labelA"></b>
+              <span id="copyA"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" id="cardB">
+        <div class="inner">
+          <div class="face front">
+            <img id="frontB" src="">
+          </div>
+
+          <div class="face back">
+            <img id="backB" src="">
+            <div class="pop">POP!</div>
+            <div class="card-copy">
+              <b id="labelB"></b>
+              <span id="copyB"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="actions" id="actions">
+      <div class="actions-title">极限二选一 💥</div>
+      <div class="actions-sub">这一局，只能留一个。</div>
+
+      <div class="btn-row">
+        <button class="pick" id="pickA">选左边</button>
+        <button class="pick" id="pickB">选右边</button>
+      </div>
+
+      <div class="result" id="result"></div>
+
+      <button class="next" id="nextBtn">下一杯 Soda Pop →</button>
+    </div>
+
+  </div>
+
+  <div class="final" id="final">
+    <h2>你的七夕心动已经冒泡 🫧</h2>
+    <p id="summary"></p>
+
+    <button class="secret-open" id="secretBtn">
+      好像还有一杯没有开… 🎁
+    </button>
+  </div>
+
+  <div class="secret" id="secret">
+
+    <div class="secret-head">
+      <div class="mini">SECRET SODA POP</div>
+      <h2>七夕隐藏款已出现 🫧</h2>
+      <p>
+        这一轮不用选。<br>
+        两份甜点，两种有点乱糟糟的心动。
+      </p>
+    </div>
+
+    <div class="board">
+
+      <div class="card" id="secretCardA">
+        <div class="inner">
+          <div class="face front">
+            <img src="oreo.jpg">
+          </div>
+
+          <div class="face back">
+            <img src="gupingyuan.jpg">
+            <div class="pop">SECRET</div>
+            <div class="card-copy">
+              <b>古平原</b>
+              <span>入戏时的你最好看。</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" id="secretCardB">
+        <div class="inner">
+          <div class="face front">
+            <img src="dirtybread.jpg">
+          </div>
+
+          <div class="face back">
+            <img src="yunxiang.jpg">
+            <div class="pop">SECRET</div>
+            <div class="card-copy">
+              <b>云襄</b>
+              <span>不必时时完美，也一样让我心动。</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="secret-ending" id="secretEnding">
+      <div class="big">
+        什么样子的你，<br>
+        都让我心动。
+      </div>
+
+      <p>
+        精心打扮的你，随性自在的你；<br>
+        意气风发的你，偶尔凌乱的你——<br>
+        都是我喜欢的样子。<br><br>
+        七夕快乐 ♡<br>
+        <b>#陈晓七夕心动SodaPop#</b>
+      </p>
+
+      <div class="ending-credit">
+        <div class="ending-line"></div>
+        <div class="ending-maker">策划制作</div>
+        <div class="ending-account">@潇筱小霄</div>
+        <div class="ending-note">粉丝自制 · 非商业用途</div>
+      </div>
+
+      <button class="restart" onclick="restartGame()">
+        再心动一次
+      </button>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    TAP · FLIP · CHOOSE · SODA POP<br>
+    <span class="credit"></span><br>
+    <span class="noncommercial">粉丝自制 · 非商业用途</span>
+  </div>
+
+</div>
+
+<script>
+
+/* =========================================================
+   你主要只需要修改下面这个 rounds 配置区
+   每一组 = 2 张冷饮正面 + 2 张陈晓背面 + 文案
+========================================================= */
+
+const rounds = [
+
+  {
+    question:
+      "七夕约会第一幕：他来接你。你更想看到哪一个瞬间？",
+
+    hint:
+      "门打开的那一秒，今晚的心动就已经有了答案。",
+
+    frontA:"drink01.jpg",
+    backA:"cx01.jpg",
+    labelA:"心动 A",
+    copyA:"他已经到了。你要不要跟他走？",
+
+    frontB:"drink02.jpg",
+    backB:"cx02.jpg",
+    labelB:"心动 B",
+    copyB:"他看向你的时候，今晚还舍得拒绝吗？",
+
+    resultA:
+      "你选了 A。七夕第一眼的心动，大概就是：人还没走近，心已经先乱了。",
+
+    resultB:
+      "你选了 B。看来你更吃这一款——什么都不用说，看你一眼就够了。"
+  },
+
+  {
+    question:
+      "如果今晚他只留给你一种状态：温柔，还是有一点危险？",
+
+    hint:
+      "女朋友视角开启。请认真考虑今晚还能不能回家。",
+
+    frontA:"drink03.jpg",
+    backA:"cx03.jpg",
+    labelA:"危险这一杯",
+    copyA:"明知道不该选，还是忍不住多看一眼。",
+
+    frontB:"drink04.jpg",
+    backB:"cx04.jpg",
+    labelB:"温柔这一杯",
+    copyB:"靠近一点，他今天看起来很好说话。",
+
+    resultA:
+      "你选择了危险模式。好的，尊重你的个人命运。",
+
+    resultB:
+      "你选择了温柔模式。今晚适合慢慢走、慢慢聊，把七夕过得很长。"
+  },
+
+  {
+    question:
+      "晚饭以后还有一点时间：你更想和他去哪里？",
+
+    hint:
+      "没有工作，没有镜头，今晚只属于你们两个。",
+
+    frontA:"drink05.jpg",
+    backA:"cx05.jpg",
+    labelA:"陪你读书",
+    copyA:"什么都不用安排，只想和你多待一会儿。",
+
+    frontB:"drink06.jpg",
+    backB:"cx06.jpg",
+    labelB:"陪你喝一杯",
+    copyB:"坐下来吧，今晚不用急着结束。",
+
+    resultA:
+      "你选了陪你读书。看来真正让你心动的，是两个人安心在一起。",
+
+    resultB:
+      "你选了喝一杯。七夕最好的续杯，大概就是一句：再坐一会儿。"
+  },
+
+  {
+    question:
+      "心动时刻：是不清白的眼神，还是突然认真看你？",
+
+    hint:
+      "这一题很残忍。不许说两个都要。",
+
+    frontA:"drink07.jpg",
+    backA:"cx07.jpg",
+    labelA:"不清白的眼神",
+    copyA:"这一秒，很难假装自己没有心动。",
+
+    frontB:"drink08.jpg",
+    backB:"cx08.jpg",
+    labelB:"突然笑了",
+    copyB:"他的注意力都在你身上。",
+
+    resultA:
+      "你选择了不清白的眼神。是你心里不清白了。",
+
+    resultB:
+      "你选择了突然一笑。行吧，这种毫无防备的心动确实很难躲。"
+  },
+
+  {
+    question:
+      "约会进行到这里：如果他再靠近一点，你更舍不得哪一个瞬间？",
+
+    hint:
+      "心动还没结束。认真选，这一杯也不许端水。",
+
+    frontA:"drink09.jpg",
+    backA:"cx09.jpg",
+    labelA:"再靠近一点",
+    copyA:"今晚还有一句话，好像没有说完。",
+
+    frontB:"drink10.jpg",
+    backB:"cx10.jpg",
+    labelB:"再看一眼",
+    copyB:"有些心动，本来就不需要说出口。",
+
+    resultA:
+      "你选了再靠近一点。今晚的七夕，看来还不能这么早结束。",
+
+    resultB:
+      "你选了再看一眼。有些人只需要多看一秒，就足够让人记很久。"
+  },
+
+  /* ---------- 第 6 组 ---------- */
+  {
+    question:
+      "七夕最终局：如果今晚只能把一个瞬间带回家，你选哪一个？",
+
+    hint:
+      "最后一杯 Soda Pop。没有标准答案，只有最诚实的心动。",
+
+    frontA:"drink11.jpg",
+    backA:"cx11.jpg",
+    labelA:"今晚别走",
+    copyA:"如果七夕可以再长一点，你还想和他多待一会儿。",
+
+    frontB:"drink12.jpg",
+    backB:"cx12.jpg",
+    labelB:"明天再见",
+    copyB:"今晚很好，但更让人心动的是——还有下一次见面。",
+
+    resultA:
+      "你选了今晚别走。看来这一晚的心动，还远远没有到说晚安的时候。",
+
+    resultB:
+      "你选了明天再见。比七夕限定更甜的，是喜欢可以一直延续到明天。"
+  }
+
+];
+
+
+/* =========================================================
+   以下逻辑一般不需要修改
+========================================================= */
+
+let current = 0;
+let flippedCount = 0;
+let answers = [];
+let secretFlipped = 0;
+
+const cardA = document.getElementById("cardA");
+const cardB = document.getElementById("cardB");
+
+const frontA = document.getElementById("frontA");
+const frontB = document.getElementById("frontB");
+const backA = document.getElementById("backA");
+const backB = document.getElementById("backB");
+
+const labelA = document.getElementById("labelA");
+const labelB = document.getElementById("labelB");
+const copyA = document.getElementById("copyA");
+const copyB = document.getElementById("copyB");
+
+const roundText = document.getElementById("roundText");
+const questionTitle = document.getElementById("questionTitle");
+const questionHint = document.getElementById("questionHint");
+
+const actions = document.getElementById("actions");
+const result = document.getElementById("result");
+const nextBtn = document.getElementById("nextBtn");
+
+const final = document.getElementById("final");
+const summary = document.getElementById("summary");
+const game = document.getElementById("game");
+const progress = document.getElementById("progress");
+
+const pickA = document.getElementById("pickA");
+const pickB = document.getElementById("pickB");
+
+const secret = document.getElementById("secret");
+const secretBtn = document.getElementById("secretBtn");
+const secretCardA = document.getElementById("secretCardA");
+const secretCardB = document.getElementById("secretCardB");
+const secretEnding = document.getElementById("secretEnding");
+
+
+function makeProgress(){
+
+  progress.innerHTML = "";
+
+  rounds.forEach((_,i)=>{
+
+    const dot = document.createElement("div");
+    dot.className = "dot";
+
+    if(i < current){
+      dot.classList.add("done");
+    }
+
+    if(i === current){
+      dot.classList.add("active");
+    }
+
+    progress.appendChild(dot);
+
+  });
+
+}
+
+
+function loadRound(){
+
+  const r = rounds[current];
+
+  flippedCount = 0;
+
+  cardA.classList.remove("flipped");
+  cardB.classList.remove("flipped");
+
+  actions.classList.remove("show");
+
+  result.classList.remove("show");
+  result.innerHTML = "";
+
+  nextBtn.classList.remove("show");
+
+  roundText.textContent =
+    "ROUND " + (current + 1) + " / " + rounds.length;
+
+  questionTitle.textContent = r.question;
+  questionHint.textContent = r.hint;
+
+  frontA.src = r.frontA;
+  backA.src = r.backA;
+
+  frontB.src = r.frontB;
+  backB.src = r.backB;
+
+  labelA.textContent = r.labelA;
+  labelB.textContent = r.labelB;
+
+  copyA.textContent = r.copyA;
+  copyB.textContent = r.copyB;
+
+  makeProgress();
+
+  window.scrollTo({
+    top:0,
+    behavior:"smooth"
+  });
+
+}
+
+
+function bubblePop(x,y){
+
+  for(let i=0;i<10;i++){
+
+    const b = document.createElement("div");
+
+    b.className = "bubble";
+
+    const size =
+      7 + Math.random() * 18;
+
+    b.style.width =
+      size + "px";
+
+    b.style.height =
+      size + "px";
+
+    b.style.left =
+      (x + (Math.random()-.5)*75) + "px";
+
+    b.style.top =
+      (y + (Math.random()-.5)*35) + "px";
+
+    document.body.appendChild(b);
+
+    setTimeout(()=>{
+      b.remove();
+    },1200);
+
+  }
+
+}
+
+
+function flipCard(card,x,y){
+
+  if(card.classList.contains("flipped")){
+    return;
+  }
+
+  card.classList.add("flipped");
+
+  flippedCount++;
+
+  bubblePop(
+    x || window.innerWidth/2,
+    y || window.innerHeight/2
+  );
+
+  if(flippedCount === 2){
+
+    setTimeout(()=>{
+      actions.classList.add("show");
+    },420);
+
+  }
+
+}
+
+
+function bindFlip(card){
+
+  card.addEventListener(
+    "click",
+    e => {
+      flipCard(
+        card,
+        e.clientX,
+        e.clientY
+      );
+    }
+  );
+
+  card.addEventListener(
+    "touchend",
+    e => {
+
+      e.preventDefault();
+
+      const t =
+        e.changedTouches &&
+        e.changedTouches[0];
+
+      flipCard(
+        card,
+        t ? t.clientX : 0,
+        t ? t.clientY : 0
+      );
+
+    },
+    {passive:false}
+  );
+
+}
+
+
+bindFlip(cardA);
+bindFlip(cardB);
+
+
+function choose(side){
+
+  const r = rounds[current];
+
+  let text;
+
+  if(side === "A"){
+
+    text = r.resultA;
+
+    answers.push(
+      "第" + (current+1) + "轮：A｜" + r.labelA
+    );
+
+  }else{
+
+    text = r.resultB;
+
+    answers.push(
+      "第" + (current+1) + "轮：B｜" + r.labelB
+    );
+
+  }
+
+  result.innerHTML =
+    "<strong>🫧 这一杯，我选 " +
+    side +
+    "</strong><br>" +
+    text +
+    "<br><br>" +
+    "分享你的泡泡心动时刻。<br>" +
+    "<b>#陈晓七夕心动SodaPop#</b>";
+
+  result.classList.add("show");
+
+  nextBtn.classList.add("show");
+
+  pickA.disabled = true;
+  pickB.disabled = true;
+
+}
+
+
+pickA.onclick = ()=>choose("A");
+pickB.onclick = ()=>choose("B");
+
+
+nextBtn.onclick = ()=>{
+
+  pickA.disabled = false;
+  pickB.disabled = false;
+
+  if(current < rounds.length-1){
+
+    current++;
+
+    loadRound();
+
+  }else{
+
+    showFinal();
+
+  }
+
+};
+
+
+function showFinal(){
+
+  game.style.display = "none";
+  progress.style.display = "none";
+  final.classList.add("show");
+
+  summary.innerHTML =
+    "六次心动，六次都不许端水。<br><br>" +
+    answers.join("<br>") +
+    "<br><br>" +
+    "<b>今晚的答案没有标准，心动就是答案。</b><br>" +
+    "截图分享你的七夕泡泡心动时刻：<br>" +
+    "<b>#陈晓七夕心动SodaPop#</b>";
+
+  window.scrollTo({
+    top:0,
+    behavior:"smooth"
+  });
+
+}
+
+
+secretBtn.onclick = ()=>{
+
+  final.style.display = "none";
+  secret.classList.add("show");
+
+  window.scrollTo({
+    top:0,
+    behavior:"smooth"
+  });
+
+};
+
+
+function flipSecret(card,x,y){
+
+  if(card.classList.contains("flipped")){
+    return;
+  }
+
+  card.classList.add("flipped");
+
+  secretFlipped++;
+
+  bubblePop(
+    x || window.innerWidth/2,
+    y || window.innerHeight/2
+  );
+
+  if(secretFlipped === 2){
+
+    setTimeout(()=>{
+      secretEnding.classList.add("show");
+    },450);
+
+  }
+
+}
+
+
+function bindSecret(card){
+
+  card.addEventListener(
+    "click",
+    e=>{
+      flipSecret(
+        card,
+        e.clientX,
+        e.clientY
+      );
+    }
+  );
+
+  card.addEventListener(
+    "touchend",
+    e=>{
+
+      e.preventDefault();
+
+      const t =
+        e.changedTouches &&
+        e.changedTouches[0];
+
+      flipSecret(
+        card,
+        t ? t.clientX : 0,
+        t ? t.clientY : 0
+      );
+
+    },
+    {passive:false}
+  );
+
+}
+
+
+bindSecret(secretCardA);
+bindSecret(secretCardB);
+
+
+function restartGame(){
+
+  current = 0;
+  answers = [];
+  secretFlipped = 0;
+
+  final.classList.remove("show");
+  final.style.display = "";
+
+  secret.classList.remove("show");
+  secretEnding.classList.remove("show");
+
+  secretCardA.classList.remove("flipped");
+  secretCardB.classList.remove("flipped");
+
+  game.style.display = "block";
+  progress.style.display = "flex";
+
+  pickA.disabled = false;
+  pickB.disabled = false;
+
+  loadRound();
+
+}
+
+
+loadRound();
+
+</script>
+</body>
+</html>
